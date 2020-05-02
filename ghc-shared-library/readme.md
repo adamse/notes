@@ -120,3 +120,12 @@ This [repository][] contains the complete code and a Makefile tying it all toget
 
 [host.c]: host.c
 [repository]: https://github.com/adamse/notes/tree/master/ghc-shared-library
+
+
+## More reading
+
+
+- After figuring this out I found a blog post by Duncan explaining how to do
+  this: <http://www.well-typed.com/blog/30/>.
+- GHC options affecting code generation & linking:
+  <https://downloads.haskell.org/~ghc/8.8.3/docs/html/users_guide/phases.html#options-affecting-code-generation>
