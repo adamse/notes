@@ -90,7 +90,7 @@ in place of the selector thunk once it is done. But it is even more powerful:
 If there is a chain of selector thunks like
 `stg_sel_2_upd(stg_sel_3_upd(stg_sel_4_upd(some_data)))` it will leave behind
 just the second field of the third field of the 4th field of `some_data` (if
-there were not thunks blocking selecting).
+there were no thunks blocking selecting).
 
 This means that during program evaluation we might not have to run the code
 associated with selecting a field, seems like a big win if it works out! Pretty
@@ -121,7 +121,7 @@ To implement this some things are needed:
    with the `StgToCmm` part of the GHC compiler which is large but probably
    understandable with some time spent.
 
-3. Teach the GC about this new variant of the selector thunks. Seems a bit
+3. Teach the RTS and GC about this new variant of the selector thunks. Seems a bit
    trickier, currently a `StgSelector` stores it's offset hardcoded in the info
    table and only has 1 payload. But I think it can be approached as follows:
 
@@ -132,7 +132,7 @@ To implement this some things are needed:
        selectee and a potential second element is the large offset.
     3. Teach the GC about the new layout.
 
-    This seems a bit hacky but may not require too many code changes. Another
-    possiblity is to introduce a new closure type `THUNK_SELECTOR_LARGE` with
-    accompanying `StgSelectorLarge` and info table. This seems slightly more
-    invasive but perhaps cleaner.
+This seems a bit hacky but may not require too many code changes. Another
+possibility is to introduce a new closure type `THUNK_SELECTOR_LARGE` with
+accompanying `StgSelectorLarge` and info table. This seems slightly more
+invasive but perhaps cleaner.
