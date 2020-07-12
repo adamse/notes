@@ -46,4 +46,17 @@ GHC compiles closures to various special pieces of data and code in the final ex
 - Payload, pointers and values
 - Code to evaluate the closure
 
+Selectors get their own special closure type called `THUNK_SELECTOR` (defined
+in [includes/rts/storage/ClosureTypes.h][ClosureTypes] and their own special
+info table and code built in handcrafted Cmm. 
 
+The Cmm code lives in [rts/StgStdThunks.cmm][StgStdThunks] written there by a
+weird amalgamation of C-preprocessor macros and the GHC specific Cmm language.
+The code starts with `INFO_TABLE_SELECTOR`, a special directive to the Cmm
+parser that makes the compiler emit a thunk with the special closure type and
+closure layout and following it is code that will evaluate the selectee if
+necessary and then select the wanted field from the constructor that is the
+selectee.
+
+[ClosureTypes]: https://gitlab.haskell.org/ghc/ghc/-/blob/c4de6a7a5c6433ae8c4df8a9fa09fbd9f3bbd0bf/includes/rts/storage/ClosureTypes.h#L44
+[StgStdThunks]: https://gitlab.haskell.org/ghc/ghc/-/blob/c4de6a7a5c6433ae8c4df8a9fa09fbd9f3bbd0bf/rts/StgStdThunks.cmm#L66-108
