@@ -1,9 +1,9 @@
+all: unused.csv
+
 packages = $(addprefix -package , ghc)
 
 extract_outputs = Extract
 extract_outputs += $(addprefix Extract., hie hi o)
-
-all: unused.csv
 
 ${extract_outputs}: Extract.hs
 	ghc ${packages} -fforce-recomp --make Extract.hs -main-is Extract.main -o Extract -fwrite-ide-info
