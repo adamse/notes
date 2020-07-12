@@ -18,6 +18,8 @@ import Data.List (intercalate)
 
 import Data.String (fromString)
 
+import Data.Maybe (fromMaybe)
+
 import Control.Monad (guard)
 
 import qualified Data.Map as Map
@@ -85,8 +87,9 @@ writeDefinedFacts relation defns = do
     unlines $
     map formatDefn defns
   where
-    formatDefn Definition{modul,name} =
-      intercalate "\t" [modul, name]
+    formatDefn Definition{modul,name,loc=mloc} =
+      let loc = fromMaybe (-1,-1) mloc in
+      intercalate "\t" [modul, name, show (fst loc), show (snd loc)]
 
 
 init :: IO NameCache.NameCache
