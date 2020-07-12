@@ -32,4 +32,5 @@ Extract	asdf	125	1
 Extract	definitionFromName	219	1
 ```
 
-Listing the module, value name and line and column where it is defined.
+Listing the module, value name and line and column where the unused value is
+defined.
