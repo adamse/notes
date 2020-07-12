@@ -67,8 +67,8 @@ The Cmm code comes in two flavours `upd` and `noupd` (probably meaning update),
 I do not yet know what the significance of this is.
 
 From the code in `StgStdThunks.cmm` we can see that the special selector thunks
-are only available for fields one through 15 (the GHC issue is about extending
-this to larger numbers). For field numbers larger than 15 GHC will currently
+are only available for fields one through 16 (the GHC issue is about extending
+this to larger numbers). For field numbers larger than 16 GHC will currently
 compile each selector to a regular `StgThunk` closure and emit code that only
 applies to that closure.
 
@@ -102,7 +102,7 @@ neat.
 ## Limitations and solutions
 
 As the GHC ticket and the code we've seen the special casing only kicks in if
-we are interested in selecting fields 1-15. The suggestion is the introduce an
+we are interested in selecting fields 1-16. The suggestion is the introduce an
 additional special info table that has an additional payload naming the field
 to select. This seems like a neat generalisation since we get just 1 (or 2, for
 the `upd` and `noupd` variants) extra piece of code and eliminate all "normal"
@@ -127,7 +127,7 @@ To implement this some things are needed:
 
     1. Reuse the same info table as the hardcoded selectors but put a special
        value in the offset field. Perhaps just a value that is bigger than the
-       current max of 15.
+       current max of 16.
     2. Extend the `StgSelector` payload to be an array, first element is the
        selectee and a potential second element is the large offset.
     3. Teach the GC about the new layout.
