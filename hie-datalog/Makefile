@@ -1,22 +1,25 @@
+packages = $(addprefix -package , ghc)
+
+extract_outputs = Extract
+extract_outputs += $(addprefix Extract., hie hi o)
+
 all: unused.csv
 
-Extract: Extract.hs
-	ghc -package ghc -fforce-recomp --make Extract.hs -main-is Extract.main -o Extract -fwrite-ide-info
+${extract_outputs}: Extract.hs
+	ghc ${packages} -fforce-recomp --make Extract.hs -main-is Extract.main -o Extract -fwrite-ide-info
 
 Extract.hie: Extract
 
-uses.facts: Extract Extract.hie
+facts = $(addsuffix .facts, uses defined exported)
+
+${facts} : Extract Extract.hie
 	./Extract
 
-unused.csv: uses.facts test.dl
-	souffle -F. -D. test.dl
+unused.csv: ${facts} unused.dl
+	souffle -F. -D. unused.dl
 	cat unused.csv
 
 clean:
 	rm -f *.csv
-	rm -f *.facts
-	rm -f Extract
-	rm -f Extract.hie
-	rm -f Extract.hi
-	rm -f Extract.o
-	
+	rm -f ${facts}
+	rm -f ${extract_outputs}

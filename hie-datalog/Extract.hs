@@ -175,7 +175,7 @@ internalUses hie =
           Right nm
             | Set.member Hie.Use (Hie.identInfo v)
             , not (Name.isInternalName nm)
-            , Name.nameModule_maybe nm == Just modul
+            -- , Name.nameModule_maybe nm == Just modul
             ->
               Just Use
                 { package = "main"

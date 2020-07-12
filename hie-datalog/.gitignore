@@ -1,0 +1,6 @@
+*.csv
+*.facts
+Extract
+Extract.hie
+Extract.hi
+Extract.o

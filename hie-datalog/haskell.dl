@@ -8,16 +8,8 @@
 .input defined
 
 .decl graph(lmod:symbol, lname:symbol, umod:symbol, uname:symbol)
-.output graph
 
 graph(lmod, lname, umod, uname) :- uses(lmod, lname, umod, uname).
 graph(lmod, lname, umod, uname) :- 
   graph(lmod, lname, a, b), 
   uses(a, b, umod, uname).
-
-.decl unused(lmod:symbol, lname:symbol, line:number, col:number)
-.output unused
-unused(lmod, lname, line, col) :- 
-  defined(lmod, lname, line, col), 
-  !exported(lmod, lname, _, _), 
-  !uses(_, _, lmod, lname).
