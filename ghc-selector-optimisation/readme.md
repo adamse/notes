@@ -109,4 +109,30 @@ the `upd` and `noupd` variants) extra piece of code and eliminate all "normal"
 thunks for all field selectors as well as potentially enabling the GC to do its
 magic.
 
+The suggestion is to generate code like `stg_sel_n_upd(some_data, field_offset)`.
+To implement this some things are needed:
 
+1. A new special `INFO_TABLE_SELECTOR` thunk and code to implement the
+  `stg_sel_n_*` thunks. This seems quite simple: the code will be much the same
+  as the existing selector thunks, juts grabbing the offset from the heap instead
+  of it being hardcoded.
+
+2. Generate code for this new selector thunk. This is mostly about grappling
+   with the `StgToCmm` part of the GHC compiler which is large but probably
+   understandable with some time spent.
+
+3. Teach the GC about this new variant of the selector thunks. Seems a bit
+   trickier, currently a `StgSelector` stores it's offset hardcoded in the info
+   table and only has 1 payload. But I think it can be approached as follows:
+
+    1. Reuse the same info table as the hardcoded selectors but put a special
+       value in the offset field. Perhaps just a value that is bigger than the
+       current max of 15.
+    2. Extend the `StgSelector` payload to be an array, first element is the
+       selectee and a potential second element is the large offset.
+    3. Teach the GC about the new layout.
+
+    This seems a bit hacky but may not require too many code changes. Another
+    possiblity is to introduce a new closure type `THUNK_SELECTOR_LARGE` with
+    accompanying `StgSelectorLarge` and info table. This seems slightly more
+    invasive but perhaps cleaner.
