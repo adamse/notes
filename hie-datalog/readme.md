@@ -34,3 +34,11 @@ Extract	definitionFromName	219	1
 
 Listing the module, value name and line and column where the unused value is
 defined.
+
+## Links
+
+- [HieDb][] -- a database and query tool for `.hie` files
+- [Glean][] -- a talk by Simon Marlow about an internal Facebook tool for storing and querying source code information. Uses Datalog for querying?
+
+[HieDb]: https://github.com/wz1000/hiedb
+[Glean]: https://www.curry-on.org/2019/sessions/glean-facts-about-code.html
