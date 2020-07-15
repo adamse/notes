@@ -8,7 +8,7 @@ and why of the field selector optimisation.
 
 ## What are selectors?
 
-When compiling GHC's intermediary language STG selectors are identified by
+When compiling GHC's intermediary language STG, selectors are identified by
 expressions/closures that look like this:
 
 ```
