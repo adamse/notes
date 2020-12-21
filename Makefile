@@ -1,6 +1,6 @@
 .PHONY: img.ppm
 img.ppm: build
-	cargo run --release
+	time cargo run --release
 
 .PHONY: build
 build:
