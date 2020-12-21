@@ -42,18 +42,31 @@ fn main() -> std::io::Result<()> {
   let image_width = 400;
   let image_height = (image_width as f32 / aspect_ratio) as u32;
 
-  let diffuse_material = Material::Lambertian(0.5);
+  let material_ground = Material::Lambertian(vec(0.8, 0.8, 0.0));
+  let material_center = Material::Lambertian(vec(0.7, 0.3, 0.3));
+  let material_left = Material::Metal(vec(0.8, 0.8, 0.8));
+  let material_right = Material::Metal(vec(0.8, 0.6, 0.2));
 
   let world = vec![
     Object::Sphere(Sphere {
-      center: point(0.0, 0.0, -1.0),
-      radius: 0.5,
-      material: &diffuse_material,
-    }),
-    Object::Sphere(Sphere {
       center: point(0.0, -100.5, -1.0),
       radius: 100.0,
-      material: &diffuse_material,
+      material: &material_ground,
+    }),
+    Object::Sphere(Sphere {
+      center: point(0.0, 0.0, -1.0),
+      radius: 0.5,
+      material: &material_center,
+    }),
+    Object::Sphere(Sphere {
+      center: point(-1.0, 0.0, -1.0),
+      radius: 0.5,
+      material: &material_left,
+    }),
+    Object::Sphere(Sphere {
+      center: point(1.0, 0.0, -1.0),
+      radius: 0.5,
+      material: &material_right,
     }),
   ];
   let max_depth = 50;

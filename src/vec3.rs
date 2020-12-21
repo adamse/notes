@@ -25,6 +25,10 @@ pub fn dot(u: Vec3, v: Vec3) -> f32 {
   u.x * v.x + u.y * v.y + u.z * v.z
 }
 
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+  v - 2.0 * dot(v, n) * n
+}
+
 impl Vec3 {
   pub fn new(x: f32, y: f32, z: f32) -> Self {
     Vec3 { x, y, z }
@@ -157,6 +161,16 @@ impl ops::Neg for Vec3 {
   }
 }
 
+impl ops::Mul<Vec3> for Vec3 {
+  type Output = Self;
+  fn mul(self, o: Vec3) -> Self {
+    Vec3 {
+      x: self.x * o.x,
+      y: self.y * o.y,
+      z: self.z * o.z,
+    }
+  }
+}
 impl ops::Mul<Vec3> for f32 {
   type Output = Vec3;
   fn mul(self, o: Vec3) -> Vec3 {
