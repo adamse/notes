@@ -97,8 +97,13 @@ impl Vec3 {
     if dot(in_unit_sphere, normal) > 0.0 {
       in_unit_sphere
     } else {
-      - in_unit_sphere
+      -in_unit_sphere
     }
+  }
+
+  pub fn near_zero(self) -> bool {
+    let s = 1.0e-8;
+    (self.x.abs() < s) && (self.y.abs() < s) && (self.z.abs() < s)
   }
 }
 

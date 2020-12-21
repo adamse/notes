@@ -1,13 +1,15 @@
 use crate::hit::*;
+use crate::material::*;
 use crate::ray::*;
 use crate::vec3::*;
 
-pub struct Sphere {
+pub struct Sphere<'a> {
   pub center: Vec3,
   pub radius: f32,
+  pub material: &'a Material,
 }
 
-impl Hittable for Sphere {
+impl<'a> Hittable for Sphere<'a> {
   fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
     let oc = ray.orig - self.center;
 
@@ -35,6 +37,12 @@ impl Hittable for Sphere {
     let p = ray.at(root);
     let outward_normal = (p - self.center) / self.radius;
 
-    Some(Hit::with_face_normal(p, root, ray, outward_normal))
+    Some(Hit::face_normal(
+      p,
+      root,
+      ray,
+      outward_normal,
+      self.material,
+    ))
   }
 }

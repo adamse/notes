@@ -1,20 +1,28 @@
+use crate::material::*;
 use crate::ray::*;
 use crate::vec3::*;
 
-pub struct Hit {
+pub struct Hit<'a> {
   pub p: Vec3,
   pub norm: Vec3,
   pub t: f32,
   pub front_face: bool,
+  pub material: &'a Material,
 }
 
-impl Hit {
+impl<'a> Hit<'a> {
   // pub fn set_face_normal(mut self, ray: &Ray, outward_normal: Vec3) {
   //   self.front_face = dot(ray.dir, outward_normal) < 0f32;
   //   self.norm = if self.front_face { outward_normal } else { - outward_normal };
   // }
 
-  pub fn with_face_normal(p: Vec3, t: f32, ray: &Ray, outward_normal: Vec3) -> Self {
+  pub fn face_normal(
+    p: Vec3,
+    t: f32,
+    ray: &Ray,
+    outward_normal: Vec3,
+    material: &'a Material,
+  ) -> Self {
     let front_face = dot(ray.dir, outward_normal) < 0f32;
     let norm = if front_face {
       outward_normal
@@ -27,6 +35,7 @@ impl Hit {
       norm,
       t,
       front_face,
+      material,
     }
   }
 }
