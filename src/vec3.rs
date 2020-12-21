@@ -6,27 +6,27 @@ use std::ops;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec3 {
-  pub x: f64,
-  pub y: f64,
-  pub z: f64,
+  pub x: f32,
+  pub y: f32,
+  pub z: f32,
 }
 
-pub fn colour(x: f64, y: f64, z: f64) -> Vec3 {
+pub fn colour(x: f32, y: f32, z: f32) -> Vec3 {
   Vec3 { x, y, z }
 }
-pub fn point(x: f64, y: f64, z: f64) -> Vec3 {
+pub fn point(x: f32, y: f32, z: f32) -> Vec3 {
   Vec3 { x, y, z }
 }
-pub fn vec(x: f64, y: f64, z: f64) -> Vec3 {
+pub fn vec(x: f32, y: f32, z: f32) -> Vec3 {
   Vec3 { x, y, z }
 }
 
-pub fn dot(u: Vec3, v: Vec3) -> f64 {
+pub fn dot(u: Vec3, v: Vec3) -> f32 {
   u.x * v.x + u.y * v.y + u.z * v.z
 }
 
 impl Vec3 {
-  pub fn new(x: f64, y: f64, z: f64) -> Self {
+  pub fn new(x: f32, y: f32, z: f32) -> Self {
     Vec3 { x, y, z }
   }
   pub fn zero() -> Self {
@@ -43,10 +43,10 @@ impl Vec3 {
       z: 1.0,
     }
   }
-  pub fn length(self) -> f64 {
+  pub fn length(self) -> f32 {
     self.length_squared().sqrt()
   }
-  pub fn length_squared(self) -> f64 {
+  pub fn length_squared(self) -> f32 {
     dot(self, self)
   }
   pub fn cross(u: &Self, v: &Self) -> Self {
@@ -61,8 +61,8 @@ impl Vec3 {
   }
 
   pub fn colour_fmt(&self, samples_per_pixel: u32) -> String {
-    let scale = 1.0 / samples_per_pixel as f64;
-    let colour = |i: f64| -> u32 { (256.0 * clamp(i * scale, 0.0, 0.999)) as u32 };
+    let scale = 1.0 / samples_per_pixel as f32;
+    let colour = |i: f32| -> u32 { (256.0 * clamp(i * scale, 0.0, 0.999)) as u32 };
     format!("{} {} {}", colour(self.x), colour(self.y), colour(self.z))
   }
 
@@ -70,7 +70,7 @@ impl Vec3 {
     Self::random(0.0, 1.0)
   }
 
-  pub fn random(min: f64, max: f64) -> Self {
+  pub fn random(min: f32, max: f32) -> Self {
     let mut rng = thread_rng();
     Vec3 {
       x: rng.gen_range(min..max),
@@ -139,15 +139,15 @@ impl ops::Neg for Vec3 {
   }
 }
 
-impl ops::Mul<Vec3> for f64 {
+impl ops::Mul<Vec3> for f32 {
   type Output = Vec3;
   fn mul(self, o: Vec3) -> Vec3 {
     o * self
   }
 }
-impl ops::Mul<f64> for Vec3 {
+impl ops::Mul<f32> for Vec3 {
   type Output = Self;
-  fn mul(self, o: f64) -> Self {
+  fn mul(self, o: f32) -> Self {
     Vec3 {
       x: self.x * o,
       y: self.y * o,
@@ -156,23 +156,23 @@ impl ops::Mul<f64> for Vec3 {
   }
 }
 
-impl ops::MulAssign<f64> for Vec3 {
-  fn mul_assign(&mut self, o: f64) {
+impl ops::MulAssign<f32> for Vec3 {
+  fn mul_assign(&mut self, o: f32) {
     self.x *= o;
     self.y *= o;
     self.z *= o;
   }
 }
 
-impl ops::Div<Vec3> for f64 {
+impl ops::Div<Vec3> for f32 {
   type Output = Vec3;
   fn div(self, o: Vec3) -> Vec3 {
     o / self
   }
 }
-impl ops::Div<f64> for Vec3 {
+impl ops::Div<f32> for Vec3 {
   type Output = Self;
-  fn div(self, o: f64) -> Self {
+  fn div(self, o: f32) -> Self {
     Vec3 {
       x: self.x / o,
       y: self.y / o,
@@ -181,8 +181,8 @@ impl ops::Div<f64> for Vec3 {
   }
 }
 
-impl ops::DivAssign<f64> for Vec3 {
-  fn div_assign(&mut self, o: f64) {
+impl ops::DivAssign<f32> for Vec3 {
+  fn div_assign(&mut self, o: f32) {
     self.x /= o;
     self.y /= o;
     self.z /= o;

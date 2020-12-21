@@ -4,11 +4,11 @@ use crate::vec3::*;
 
 pub struct Sphere {
   pub center: Vec3,
-  pub radius: f64,
+  pub radius: f32,
 }
 
 impl Hittable for Sphere {
-  fn hit(&self, ray: &Ray, tmin: f64, tmax: f64) -> Option<Hit> {
+  fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
     let oc = ray.orig - self.center;
 
     let a = dot(ray.dir, ray.dir);

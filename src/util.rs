@@ -1,9 +1,9 @@
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 
-pub fn clamp(i: f64, min: f64, max: f64) -> f64 {
+pub fn clamp(i: f32, min: f32, max: f32) -> f32 {
   i.max(min).min(max)
 }
 
-pub fn degrees_to_radians(degrees: f64) -> f64 {
+pub fn degrees_to_radians(degrees: f32) -> f32 {
   degrees * PI / 180.0
 }

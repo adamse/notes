@@ -10,7 +10,7 @@ pub fn ray(orig: Vec3, dir: Vec3) -> Ray {
 }
 
 impl Ray {
-  pub fn at(&self, t: f64) -> Vec3 {
+  pub fn at(&self, t: f32) -> Vec3 {
     self.orig + t * self.dir
   }
 }
