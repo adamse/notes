@@ -53,7 +53,7 @@ fn ray_colour(ray: &Ray, world: &Vec<Object>, depth: u32) -> Vec3 {
   let unit_direction = ray.dir.unit();
   let t = 0.5 * (unit_direction.y + 1.0);
 
-  (1.0 - t) * colour(1.0, 1.0, 1.0) + t * colour(0.5, 0.7, 1.0)
+  (1.0 - t) * Vec3::one() + t * colour(0.5, 0.7, 1.0)
 }
 
 fn main() -> std::io::Result<()> {
