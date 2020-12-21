@@ -46,8 +46,9 @@ fn ray_colour(ray: &Ray, world: &Vec<Object>, depth: u32) -> Vec3 {
     return Vec3::zero();
   }
 
-  if let Some(hit) = world.hit(ray, 0.0, INFINITY) {
-    let target = hit.p + hit.norm + Vec3::random_unit_sphere();
+  if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
+    let target = hit.p + hit.norm + Vec3::random_in_unit_vector();
+    // let target = hit.p + Vec3::random_in_hemisphere(hit.norm);
     return 0.5 * ray_colour(&ray::ray(hit.p, target - hit.p), world, depth - 1);
   }
 
@@ -90,8 +91,8 @@ fn main() -> std::io::Result<()> {
 
     for i in 0..image_width {
       let colour = (0..samples_per_pixel).fold(Vec3::zero(), |colour, _sample| {
-        let u = (i as f32 + rnd.gen_range(0.0..1.0)) / (image_width - 1) as f32;
-        let v = (j as f32 + rnd.gen_range(0.0..1.0)) / (image_height - 1) as f32;
+        let u = (i as f32 + rnd.gen::<f32>()) / (image_width - 1) as f32;
+        let v = (j as f32 + rnd.gen::<f32>()) / (image_height - 1) as f32;
 
         let ray = camera::SimpleCamera::ray(u, v);
 

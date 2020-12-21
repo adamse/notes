@@ -62,7 +62,7 @@ impl Vec3 {
 
   pub fn colour_fmt(&self, samples_per_pixel: u32) -> String {
     let scale = 1.0 / samples_per_pixel as f32;
-    let colour = |i: f32| -> u32 { (256.0 * clamp(i * scale, 0.0, 0.999)) as u32 };
+    let colour = |i: f32| -> u32 { (256.0 * clamp((i * scale).sqrt(), 0.0, 0.999)) as u32 };
     format!("{} {} {}", colour(self.x), colour(self.y), colour(self.z))
   }
 
@@ -79,12 +79,25 @@ impl Vec3 {
     }
   }
 
-  pub fn random_unit_sphere() -> Self {
+  pub fn random_in_unit_sphere() -> Self {
     loop {
       let p = Self::random(-1.0, 1.0);
       if p.length_squared() < 1.0 {
         return p;
       }
+    }
+  }
+
+  pub fn random_in_unit_vector() -> Self {
+    Self::random_in_unit_sphere().unit()
+  }
+
+  pub fn random_in_hemisphere(normal: Self) -> Self {
+    let in_unit_sphere = Self::random_in_unit_sphere();
+    if dot(in_unit_sphere, normal) > 0.0 {
+      in_unit_sphere
+    } else {
+      - in_unit_sphere
     }
   }
 }
