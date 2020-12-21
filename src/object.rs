@@ -46,3 +46,30 @@ impl<'a> Hittable for Sphere<'a> {
     ))
   }
 }
+
+pub enum Object<'a> {
+  Sphere(Sphere<'a>),
+}
+
+impl<'a> Hittable for Object<'a> {
+  fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
+    match self {
+      Object::Sphere(sp) => sp.hit(ray, tmin, tmax),
+    }
+  }
+}
+
+impl<'a> Hittable for Vec<Object<'a>> {
+  fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
+    self
+      .iter()
+      .fold(
+        (tmax, None),
+        |(closest_so_far, closest_hit), obj| match obj.hit(ray, tmin, closest_so_far) {
+          Some(hit) => (hit.t, Some(hit)),
+          None => (closest_so_far, closest_hit),
+        },
+      )
+      .1
+  }
+}

@@ -4,11 +4,11 @@ mod ray;
 use ray::*;
 mod hit;
 use hit::*;
-mod sphere;
-use sphere::*;
 mod camera;
-mod material;
+mod object;
 mod util;
+use object::*;
+mod material;
 use material::*;
 
 use rand::{thread_rng, Rng};
@@ -16,35 +16,9 @@ use std::f32::INFINITY;
 use std::fs::File;
 use std::io::prelude::*;
 
-enum Object<'a> {
-  Sphere(Sphere<'a>),
-}
-
-impl<'a> Hittable for Object<'a> {
-  fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
-    match self {
-      Object::Sphere(sp) => sp.hit(ray, tmin, tmax),
-    }
-  }
-}
-
-impl<'a> Hittable for Vec<Object<'a>> {
-  fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
-    self
-      .iter()
-      .fold(
-        (tmax, None),
-        |(closest_so_far, closest_hit), obj| match obj.hit(ray, tmin, closest_so_far) {
-          Some(hit) => (hit.t, Some(hit)),
-          None => (closest_so_far, closest_hit),
-        },
-      )
-      .1
-  }
-}
-
 fn ray_colour(ray: &Ray, world: &Vec<Object>, depth: u32) -> Vec3 {
   if depth == 0 {
+    // ray has bounced enough
     return Vec3::zero();
   }
 
@@ -52,10 +26,8 @@ fn ray_colour(ray: &Ray, world: &Vec<Object>, depth: u32) -> Vec3 {
     if let Some(scattered) = hit.material.scatter(ray, &hit) {
       return scattered.attenuation * ray_colour(&scattered.scattered, world, depth - 1);
     }
+    // ray was absorbed
     return Vec3::zero();
-    // let target = Vec3::random_in_hemisphere(hit.norm);
-    // let target = hit.norm + Vec3::random_in_unit_vector();
-    // return 0.5 * ray_colour(&ray::ray(hit.p, target), world, depth - 1);
   }
 
   let unit_direction = ray.dir.unit();
