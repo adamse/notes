@@ -1,8 +1,6 @@
 use crate::hit::*;
 use crate::ray::*;
 use crate::vec3::*;
-use crate::util::*;
-
 
 pub struct Sphere {
   pub center: Vec3,

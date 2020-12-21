@@ -1,5 +1,6 @@
 use crate::util::*;
 
+use rand::{thread_rng, Rng};
 use std::fmt;
 use std::ops;
 
@@ -61,10 +62,30 @@ impl Vec3 {
 
   pub fn colour_fmt(&self, samples_per_pixel: u32) -> String {
     let scale = 1.0 / samples_per_pixel as f64;
-    let colour = |i: f64| -> u32 {
-      (256.0 * clamp(i * scale, 0.0, 0.999)) as u32
-    };
+    let colour = |i: f64| -> u32 { (256.0 * clamp(i * scale, 0.0, 0.999)) as u32 };
     format!("{} {} {}", colour(self.x), colour(self.y), colour(self.z))
+  }
+
+  pub fn random_unit() -> Self {
+    Self::random(0.0, 1.0)
+  }
+
+  pub fn random(min: f64, max: f64) -> Self {
+    let mut rng = thread_rng();
+    Vec3 {
+      x: rng.gen_range(min..max),
+      y: rng.gen_range(min..max),
+      z: rng.gen_range(min..max),
+    }
+  }
+
+  pub fn random_unit_sphere() -> Self {
+    loop {
+      let p = Self::random(-1.0, 1.0);
+      if p.length_squared() < 1.0 {
+        return p;
+      }
+    }
   }
 }
 

@@ -9,6 +9,7 @@ use sphere::*;
 mod camera;
 mod util;
 
+use rand::{thread_rng, Rng};
 use std::f64::INFINITY;
 use std::fs::File;
 use std::io::prelude::*;
@@ -27,21 +28,27 @@ impl Hittable for Object {
 
 impl Hittable for Vec<Object> {
   fn hit(&self, ray: &Ray, tmin: f64, tmax: f64) -> Option<Hit> {
-    let mut closest_so_far = tmax;
-    self.iter().fold(None, |closest_hit, obj| {
-      if let Some(hit) = obj.hit(ray, tmin, closest_so_far) {
-        closest_so_far = hit.t;
-        Some(hit)
-      } else {
-        closest_hit
-      }
-    })
+    self
+      .iter()
+      .fold(
+        (tmax, None),
+        |(closest_so_far, closest_hit), obj| match obj.hit(ray, tmin, closest_so_far) {
+          Some(hit) => (hit.t, Some(hit)),
+          None => (closest_so_far, closest_hit),
+        },
+      )
+      .1
   }
 }
 
-fn ray_colour(ray: &Ray, world: &Vec<Object>) -> Vec3 {
+fn ray_colour(ray: &Ray, world: &Vec<Object>, depth: u32) -> Vec3 {
+  if depth == 0 {
+    return Vec3::zero();
+  }
+
   if let Some(hit) = world.hit(ray, 0.0, INFINITY) {
-    return 0.5 * (hit.norm + Vec3::one());
+    let target = hit.p + hit.norm + Vec3::random_unit_sphere();
+    return 0.5 * ray_colour(&ray::ray(hit.p, target - hit.p), world, depth - 1);
   }
   let unit_direction = ray.dir.unit();
   let t = 0.5 * (unit_direction.y + 1.0);
@@ -65,6 +72,7 @@ fn main() -> std::io::Result<()> {
       radius: 100.0,
     }),
   ];
+  let max_depth = 50;
 
   let mut file = File::create("img.ppm")?;
 
@@ -72,21 +80,24 @@ fn main() -> std::io::Result<()> {
   file.write_all(format!("{} {}\n", image_width, image_height).as_bytes())?;
   file.write_all("255\n".as_bytes())?;
 
+  let samples_per_pixel = 100;
+  let mut rnd = thread_rng();
+
   // render
   for j in (0..image_height).rev() {
-
     eprint!("\rscanlines remaining: {:5}", j);
 
     for i in 0..image_width {
+      let colour = (0..samples_per_pixel).fold(Vec3::zero(), |colour, _sample| {
+        let u = (i as f64 + rnd.gen_range(0.0..1.0)) / (image_width - 1) as f64;
+        let v = (j as f64 + rnd.gen_range(0.0..1.0)) / (image_height - 1) as f64;
 
-      let u = i as f64 / (image_width - 1) as f64;
-      let v = j as f64 / (image_height - 1) as f64;
+        let ray = camera::SimpleCamera::ray(u, v);
 
-      let ray = camera::SimpleCamera::ray(u, v);
+        colour + ray_colour(&ray, &world, max_depth)
+      });
 
-      let c = ray_colour(&ray, &world);
-
-      let s = format!("{}\n", c.colour_fmt(1));
+      let s = format!("{}\n", colour.colour_fmt(samples_per_pixel));
       let _ = file.write_all(s.as_bytes());
     }
   }
