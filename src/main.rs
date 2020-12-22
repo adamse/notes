@@ -7,7 +7,6 @@ use hit::*;
 mod camera;
 use camera::*;
 mod object;
-mod util;
 use object::*;
 mod material;
 use material::*;

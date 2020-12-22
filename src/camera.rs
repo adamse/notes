@@ -1,6 +1,8 @@
 use crate::ray::*;
-use crate::util::*;
 use crate::vec3::*;
+
+use std::f32::consts::PI;
+
 
 // pub struct SimpleCamera {}
 
@@ -85,4 +87,8 @@ impl FovCamera {
       self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin - offset,
     )
   }
+}
+
+fn degrees_to_radians(degrees: f32) -> f32 {
+  degrees * PI / 180.0
 }

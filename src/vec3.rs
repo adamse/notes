@@ -1,5 +1,4 @@
 use crate::fastrand::*;
-use crate::util::*;
 
 use std::fmt;
 use std::ops;
@@ -241,3 +240,8 @@ impl ops::DivAssign<f32> for Vec3 {
     self.z /= o;
   }
 }
+
+fn clamp(i: f32, min: f32, max: f32) -> f32 {
+  i.max(min).min(max)
+}
+
