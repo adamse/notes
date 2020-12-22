@@ -16,13 +16,7 @@ impl Hit {
   //   self.norm = if self.front_face { outward_normal } else { - outward_normal };
   // }
 
-  pub fn face_normal(
-    p: Vec3,
-    t: f32,
-    ray: &Ray,
-    outward_normal: Vec3,
-    material: Material,
-  ) -> Self {
+  pub fn face_normal(p: Vec3, t: f32, ray: &Ray, outward_normal: Vec3, material: Material) -> Self {
     let front_face = dot(ray.dir, outward_normal) < 0f32;
     let norm = if front_face {
       outward_normal

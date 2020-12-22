@@ -29,6 +29,14 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
   v - 2.0 * dot(v, n) * n
 }
 
+pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
+  let cos_theta = dot(-uv, n).min(1.0);
+  let r_perp = etai_over_etat * (uv + cos_theta * n);
+  let r_par = -((1.0 - r_perp.length_squared()).abs()).sqrt() * n;
+
+  r_perp + r_par
+}
+
 impl Vec3 {
   pub fn new(x: f32, y: f32, z: f32) -> Self {
     Vec3 { x, y, z }
