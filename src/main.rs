@@ -11,9 +11,9 @@ mod util;
 use object::*;
 mod material;
 use material::*;
+mod fastrand;
+use fastrand::*;
 
-use rand::{thread_rng, Rng};
-use std::f32::consts::PI;
 use std::f32::INFINITY;
 use std::fs::File;
 use std::io::prelude::*;
@@ -113,7 +113,6 @@ fn main() -> std::io::Result<()> {
   file.write_all("255\n".as_bytes())?;
 
   let samples_per_pixel = 100;
-  let mut rnd = thread_rng();
 
   // render
   for j in (0..image_height).rev() {
@@ -121,8 +120,8 @@ fn main() -> std::io::Result<()> {
 
     for i in 0..image_width {
       let colour = (0..samples_per_pixel).fold(Vec3::zero(), |colour, _sample| {
-        let u = (i as f32 + rnd.gen::<f32>()) / (image_width - 1) as f32;
-        let v = (j as f32 + rnd.gen::<f32>()) / (image_height - 1) as f32;
+        let u = (i as f32 + rand_f32_01()) / (image_width - 1) as f32;
+        let v = (j as f32 + rand_f32_01()) / (image_height - 1) as f32;
 
         let ray = camera.ray(u, v);
 

@@ -1,6 +1,6 @@
 use crate::util::*;
+use crate::fastrand::*;
 
-use rand::{thread_rng, Rng};
 use std::fmt;
 use std::ops;
 
@@ -84,11 +84,10 @@ impl Vec3 {
   }
 
   pub fn random(min: f32, max: f32) -> Self {
-    let mut rng = thread_rng();
     Vec3 {
-      x: rng.gen_range(min..max),
-      y: rng.gen_range(min..max),
-      z: rng.gen_range(min..max),
+      x: rand_f32_interval(min, max),
+      y: rand_f32_interval(min, max),
+      z: rand_f32_interval(min, max),
     }
   }
 

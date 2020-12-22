@@ -1,8 +1,7 @@
+use crate::fastrand::*;
 use crate::hit::*;
 use crate::ray::*;
 use crate::vec3::*;
-
-use rand::{thread_rng, Rng};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Material {
@@ -70,7 +69,7 @@ impl Material {
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
-        let reflected = reflectance(cos_theta, refraction_ratio) > thread_rng().gen::<f32>();
+        let reflected = reflectance(cos_theta, refraction_ratio) > rand_f32_01();
 
         let direction = if cannot_refract || reflected {
           reflect(unit_direction, hit.norm)
