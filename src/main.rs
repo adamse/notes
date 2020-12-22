@@ -51,24 +51,25 @@ fn main() -> std::io::Result<()> {
     Object::Sphere(Sphere {
       center: point(0.0, -100.5, -1.0),
       radius: 100.0,
-      material: &material_ground,
+      material: material_ground,
     }),
     Object::Sphere(Sphere {
       center: point(0.0, 0.0, -1.0),
       radius: 0.5,
-      material: &material_center,
+      material: material_center,
     }),
     Object::Sphere(Sphere {
       center: point(-1.0, 0.0, -1.0),
       radius: 0.5,
-      material: &material_left,
+      material: material_left,
     }),
     Object::Sphere(Sphere {
       center: point(1.0, 0.0, -1.0),
       radius: 0.5,
-      material: &material_right,
+      material: material_right,
     }),
   ];
+
   let max_depth = 50;
 
   let mut file = File::create("img.ppm")?;

@@ -2,6 +2,7 @@ use crate::hit::*;
 use crate::ray::*;
 use crate::vec3::*;
 
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Material {
   Lambertian(Vec3),
   Metal(Vec3),
@@ -35,6 +36,7 @@ impl Material {
       Material::Metal(albedo) => {
         let reflected = reflect(ray_in.dir.unit(), hit.norm);
         let scattered = ray(hit.p, reflected);
+
         if dot(scattered.dir, hit.norm) > 0.0 {
           Some(Scatter {
             attenuation: *albedo,

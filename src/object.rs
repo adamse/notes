@@ -3,13 +3,13 @@ use crate::material::*;
 use crate::ray::*;
 use crate::vec3::*;
 
-pub struct Sphere<'a> {
+pub struct Sphere {
   pub center: Vec3,
   pub radius: f32,
-  pub material: &'a Material,
+  pub material: Material,
 }
 
-impl<'a> Hittable for Sphere<'a> {
+impl Hittable for Sphere {
   fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
     let oc = ray.orig - self.center;
 
@@ -47,11 +47,11 @@ impl<'a> Hittable for Sphere<'a> {
   }
 }
 
-pub enum Object<'a> {
-  Sphere(Sphere<'a>),
+pub enum Object {
+  Sphere(Sphere),
 }
 
-impl<'a> Hittable for Object<'a> {
+impl Hittable for Object {
   fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
     match self {
       Object::Sphere(sp) => sp.hit(ray, tmin, tmax),
@@ -59,7 +59,7 @@ impl<'a> Hittable for Object<'a> {
   }
 }
 
-impl<'a> Hittable for Vec<Object<'a>> {
+impl Hittable for Vec<Object> {
   fn hit(&self, ray: &Ray, tmin: f32, tmax: f32) -> Option<Hit> {
     self
       .iter()
