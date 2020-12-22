@@ -25,6 +25,14 @@ pub fn dot(u: Vec3, v: Vec3) -> f32 {
   u.x * v.x + u.y * v.y + u.z * v.z
 }
 
+pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
+  Vec3 {
+    x: u.y * v.z - u.z * v.y,
+    y: u.z * v.x - u.x * v.z,
+    z: u.x * v.y - u.y * v.x,
+  }
+}
+
 pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
   v - 2.0 * dot(v, n) * n
 }
@@ -60,13 +68,6 @@ impl Vec3 {
   }
   pub fn length_squared(self) -> f32 {
     dot(self, self)
-  }
-  pub fn cross(u: &Self, v: &Self) -> Self {
-    Vec3 {
-      x: u.y * v.z - u.z * v.y,
-      y: u.z * v.x - u.x * v.z,
-      z: u.x * v.y - u.y * v.x,
-    }
   }
   pub fn unit(self) -> Self {
     self / self.length()

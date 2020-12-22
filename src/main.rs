@@ -5,6 +5,7 @@ use ray::*;
 mod hit;
 use hit::*;
 mod camera;
+use camera::*;
 mod object;
 mod util;
 use object::*;
@@ -12,6 +13,7 @@ mod material;
 use material::*;
 
 use rand::{thread_rng, Rng};
+use std::f32::consts::PI;
 use std::f32::INFINITY;
 use std::fs::File;
 use std::io::prelude::*;
@@ -77,6 +79,31 @@ fn main() -> std::io::Result<()> {
     }),
   ];
 
+  // let r = (PI / 4.0).cos();
+  // let material_left = Material::Lambertian(colour(0.0, 0.0, 1.0));
+  // let material_right = Material::Lambertian(colour(1.0, 0.0, 0.0));
+
+  // let world = vec![
+  //   Object::Sphere(Sphere {
+  //     center: point(-r, 0.0, -1.0),
+  //     radius: r,
+  //     material: material_left,
+  //   }),
+  //   Object::Sphere(Sphere {
+  //     center: point(r, 0.0, -1.0),
+  //     radius: r,
+  //     material: material_right,
+  //   }),
+  // ];
+
+  let camera = FovCamera::new(
+    point(-2.0, 2.0, 1.0),
+    point(0.0, 0.0, -1.0),
+    vec(0.0, 1.0, 0.0),
+    20.0,
+    aspect_ratio,
+  );
+
   let max_depth = 50;
 
   let mut file = File::create("img.ppm")?;
@@ -97,7 +124,7 @@ fn main() -> std::io::Result<()> {
         let u = (i as f32 + rnd.gen::<f32>()) / (image_width - 1) as f32;
         let v = (j as f32 + rnd.gen::<f32>()) / (image_height - 1) as f32;
 
-        let ray = camera::SimpleCamera::ray(u, v);
+        let ray = camera.ray(u, v);
 
         colour + ray_colour(&ray, &world, max_depth)
       });
