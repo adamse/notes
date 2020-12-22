@@ -40,6 +40,12 @@ fn ray_colour(ray: &Ray, world: &Vec<Object>, depth: u32) -> Vec3 {
 fn random_scene() -> Vec<Object> {
   let mut world = Vec::new();
 
+  world.push(Object::Sphere(Sphere {
+    center: point(0.0, -1000.0, 0.0),
+    radius: -1000.0,
+    material: Material::Lambertian(colour(0.5, 0.5, 0.5)),
+  }));
+
   for a in -11..11 {
     for b in -11..11 {
       let center = point(a as f32 + 0.9 * rand_f32_01(), 0.2, b as f32 + 0.9 * rand_f32_01());
@@ -154,13 +160,13 @@ fn main() -> std::io::Result<()> {
 
   let lookfrom = point(13.0, 2.0, 3.0);
   let lookat = point(0.0, 0.0, 0.0);
-  let dist_to_focus = (lookfrom - lookat).length();
+  let dist_to_focus = 10.0;
   let aperture = 0.1;
   let camera = FovCamera::new(
     lookfrom,
     lookat,
     vec(0.0, 1.0, 0.0),
-    10.0,
+    20.0,
     aspect_ratio,
     aperture,
     dist_to_focus
@@ -173,7 +179,6 @@ fn main() -> std::io::Result<()> {
   file.write_all("P3\n".as_bytes())?;
   file.write_all(format!("{} {}\n", image_width, image_height).as_bytes())?;
   file.write_all("255\n".as_bytes())?;
-
 
   // render
   for j in (0..image_height).rev() {
