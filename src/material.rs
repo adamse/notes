@@ -5,7 +5,7 @@ use crate::vec3::*;
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Material {
   Lambertian(Vec3),
-  Metal(Vec3),
+  Metal(Vec3, f32),
 }
 
 pub struct Scatter {
@@ -15,14 +15,14 @@ pub struct Scatter {
 
 impl Material {
   // None => the ray was absorbed
-  pub fn scatter(&self, ray_in: &Ray, hit: &Hit) -> Option<Scatter> {
+  pub fn scatter(self, ray_in: &Ray, hit: &Hit) -> Option<Scatter> {
     match self {
       Material::Lambertian(albedo) => {
         // could scatter with prob p and have attenuation albedo/p, to try
         let scatter_direction = hit.norm + Vec3::random_in_unit_vector();
 
         Some(Scatter {
-          attenuation: *albedo,
+          attenuation: albedo,
           scattered: ray(
             hit.p,
             if scatter_direction.near_zero() {
@@ -33,13 +33,13 @@ impl Material {
           ),
         })
       }
-      Material::Metal(albedo) => {
+      Material::Metal(albedo, fuzz) => {
         let reflected = reflect(ray_in.dir.unit(), hit.norm);
-        let scattered = ray(hit.p, reflected);
+        let scattered = ray(hit.p, reflected + fuzz * Vec3::random_in_unit_sphere());
 
         if dot(scattered.dir, hit.norm) > 0.0 {
           Some(Scatter {
-            attenuation: *albedo,
+            attenuation: albedo,
             scattered,
           })
         } else {
