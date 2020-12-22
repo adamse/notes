@@ -16,6 +16,9 @@ use fastrand::*;
 use std::f32::INFINITY;
 use std::fs::File;
 use std::io::prelude::*;
+use std::sync::{Arc, Mutex};
+
+use rayon::prelude::*;
 
 fn ray_colour(ray: &Ray, world: &Vec<Object>, depth: u32) -> Vec3 {
   if depth == 0 {
@@ -48,11 +51,14 @@ fn random_scene() -> Vec<Object> {
 
   for a in -11..11 {
     for b in -11..11 {
-      let center = point(a as f32 + 0.9 * rand_f32_01(), 0.2, b as f32 + 0.9 * rand_f32_01());
+      let center = point(
+        a as f32 + 0.9 * rand_f32_01(),
+        0.2,
+        b as f32 + 0.9 * rand_f32_01(),
+      );
       if (center - point(4.0, 0.2, 0.0)).length() > 0.9 {
         let r = rand_f32_01();
         if r < 0.8 {
-          // diffuse
           let albedo = Vec3::random_in_unit_vector() * Vec3::random_in_unit_vector();
           world.push(Object::Sphere(Sphere {
             center,
@@ -155,7 +161,7 @@ fn main() -> std::io::Result<()> {
   // image
   let aspect_ratio = 3.0 / 2.0; // 16.0 / 9.0;
   let image_width = 1200;
-  let image_height = (image_width as f32 / aspect_ratio) as u32;
+  let image_height = (image_width as f32 / aspect_ratio) as usize;
   let samples_per_pixel = 500;
 
   let lookfrom = point(13.0, 2.0, 3.0);
@@ -169,21 +175,19 @@ fn main() -> std::io::Result<()> {
     20.0,
     aspect_ratio,
     aperture,
-    dist_to_focus
+    dist_to_focus,
   );
 
   let max_depth = 50;
 
-  let mut file = File::create("img.ppm")?;
-
-  file.write_all("P3\n".as_bytes())?;
-  file.write_all(format!("{} {}\n", image_width, image_height).as_bytes())?;
-  file.write_all("255\n".as_bytes())?;
-
   // render
-  for j in (0..image_height).rev() {
-    eprint!("\rscanlines remaining: {:5}", j);
 
+  let sz = image_width * image_height;
+
+  let image: Arc<Mutex<Vec<Vec3>>> = Arc::new(Mutex::new((0..sz).map(|_| Vec3::zero()).collect()));
+
+  (0..image_height).into_par_iter().for_each(|j| {
+    println!("scanline {}", j);
     for i in 0..image_width {
       let colour = (0..samples_per_pixel).fold(Vec3::zero(), |colour, _sample| {
         let u = (i as f32 + rand_f32_01()) / (image_width - 1) as f32;
@@ -193,11 +197,28 @@ fn main() -> std::io::Result<()> {
 
         colour + ray_colour(&ray, &world, max_depth)
       });
+      image.lock().unwrap()[j * image_width + i] = colour;
+    }
+  });
 
-      let s = format!("{}\n", colour.colour_fmt(samples_per_pixel));
+  let image = image.lock().unwrap();
+
+  let mut file = File::create("img_thr.ppm")?;
+
+  file.write_all("P3\n".as_bytes())?;
+  file.write_all(format!("{} {}\n", image_width, image_height).as_bytes())?;
+  file.write_all("255\n".as_bytes())?;
+
+  (0..image_height).rev().for_each(|j| {
+    for i in 0..image_width {
+      let s = format!(
+        "{}\n",
+        image[j * image_width + i].colour_fmt(samples_per_pixel)
+      );
       let _ = file.write_all(s.as_bytes());
     }
-  }
+  });
+
   eprintln!("\ndone");
 
   Ok(())

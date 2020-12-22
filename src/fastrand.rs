@@ -1,7 +1,11 @@
 // https://lemire.me/blog/2019/03/19/the-fastest-conventional-random-number-generator-that-can-pass-big-crush/
 // https://experilous.com/1/blog/post/perfect-fast-random-floating-point-numbers
 
-static mut STATE: u128 = 1232451235;
+use std::cell::RefCell;
+
+thread_local! {
+  static STATE: RefCell<u128> = RefCell::new(1232451235);
+}
 
 // fn rand_u64() -> u64 {
 //   unsafe {
@@ -11,11 +15,10 @@ static mut STATE: u128 = 1232451235;
 // }
 
 fn rand_u32() -> u32 {
-  unsafe {
-    STATE = STATE * 0xda942042e4dd58b5;
-    // is this correct? :)
-    (STATE >> 96) as u32
-  }
+  STATE.with(|state| {
+    *state.borrow_mut() *= 0xda942042e4dd58b5;
+    (state.borrow().clone() >> 96) as u32
+  })
 }
 
 pub fn rand_f32_01() -> f32 {
