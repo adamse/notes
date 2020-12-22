@@ -34,11 +34,24 @@ pub struct FovCamera {
   pub horizontal: Vec3,
   /// vec
   pub vertical: Vec3,
+
+	pub w: Vec3,
+	pub u: Vec3,
+	pub v: Vec3,
+  pub lens_radius: f32,
 }
 
 impl FovCamera {
   /// - `vfov`: vertical field-of-view in degrees
-  pub fn new(lookfrom: Vec3, lookat: Vec3, vup: Vec3, vfov: f32, aspect_ratio: f32) -> Self {
+  pub fn new(
+    lookfrom: Vec3,
+    lookat: Vec3,
+    vup: Vec3,
+    vfov: f32,
+    aspect_ratio: f32,
+    aperture: f32,
+    focus_dist: f32,
+  ) -> Self {
     let theta = degrees_to_radians(vfov);
     let h = (theta / 2.0).tan();
     let viewport_height = 2.0 * h;
@@ -49,22 +62,27 @@ impl FovCamera {
     let v = cross(w, u);
 
     let origin = lookfrom;
-    let horizontal = viewport_width * u;
-    let vertical = viewport_height * v;
-    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - w;
+    let horizontal = focus_dist * viewport_width * u;
+    let vertical = focus_dist * viewport_height * v;
+    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - focus_dist * w;
+		let lens_radius = aperture / 2.0;
 
     FovCamera {
       origin,
       lower_left_corner,
       horizontal,
       vertical,
+			w, u, v,
+			lens_radius,
     }
   }
 
   pub fn ray(&self, u: f32, v: f32) -> Ray {
+		let rd = self.lens_radius * Vec3::random_in_unit_disk();
+		let offset = self.u * rd.x + self.v * rd.y;
     ray(
-      self.origin,
-      self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin,
+      self.origin + offset,
+      self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin - offset,
     )
   }
 }

@@ -1,5 +1,5 @@
-use crate::util::*;
 use crate::fastrand::*;
+use crate::util::*;
 
 use std::fmt;
 use std::ops;
@@ -110,6 +110,19 @@ impl Vec3 {
       in_unit_sphere
     } else {
       -in_unit_sphere
+    }
+  }
+
+  pub fn random_in_unit_disk() -> Self {
+    loop {
+      let p = vec(
+        rand_f32_interval(-1.0, 1.0),
+        rand_f32_interval(-1.0, 1.0),
+        0.0,
+      );
+      if p.length_squared() < 1.0 {
+        return p;
+      }
     }
   }
 
