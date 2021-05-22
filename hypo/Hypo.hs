@@ -46,10 +46,10 @@ getbits n s =
       }
   in (s', res)
 
-type Generator a = Source -> (Source, a)
+newtype Generator a = MkGenerator (Source -> (Source, a))
 
 draw :: Generator a -> Source -> (Source, a)
-draw gen s =
+draw (MkGenerator gen) s =
   let
     s1 = s
       { sdraw_stack = length (srecord s) : sdraw_stack s
@@ -67,13 +67,16 @@ data Tree
   deriving (Show)
 
 genTree :: Generator Tree
-genTree s =
-  case getbits 1 s of
+genTree =
+  MkGenerator $ \s -> case getbits 1 s of
     (s, b)
       | b == 0 -> (s, Leaf)
       | otherwise ->
-        case genTree s of
-          (s, left) -> case genTree s of
+        case draw genTree s of
+          (s, left) -> case draw genTree s of
             (s, right) -> (s, Branch left right)
 
-
+runGen :: Generator a -> IO a
+runGen g = do
+  s <- mkSource []
+  return (snd (draw g s))
