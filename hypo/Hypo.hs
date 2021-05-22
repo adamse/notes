@@ -1,3 +1,6 @@
+{-# language StandaloneDeriving #-}
+{-# language DerivingStrategies #-}
+{-# language DeriveFunctor #-}
 module Hypo where
 
 import System.Random
@@ -29,10 +32,24 @@ mkSource prefix = do
 
 trunc n w = w .&. ((0 `setBit` n) - 1)
 
+newtype Gen a = Gen { runGen :: Source -> (Source, a) }
+
+deriving stock instance Functor Gen
+
+instance Applicative Gen where
+  pure x = Gen (\s -> (s, x))
+  (<*>) = ap
+
+instance Monad Gen where
+  ga >>= agb = Gen $ \s ->
+    case runGen ga s of
+      (s, a) -> runGen (agb a) s
+
+
 -- | return n bits
-getbits :: Int -> Source -> (Source, B)
-getbits n s | n > 64 = error "more than 64 bits requested"
-getbits n s =
+getbits :: Int -> Gen B
+getbits n | n > 64 = error "more than 64 bits requested"
+getbits n = Gen $ \s ->
   let
     i = length (srecord s)
     (res, rest) =
@@ -46,15 +63,18 @@ getbits n s =
       }
   in (s', res)
 
-newtype Generator a = MkGenerator (Source -> (Source, a))
+newtype Generator a = MkGenerator (Gen a)
 
-draw :: Generator a -> Source -> (Source, a)
-draw (MkGenerator gen) s =
+mkGenerator :: Gen a -> Generator a
+mkGenerator = MkGenerator
+
+draw :: Generator a -> Gen a
+draw (MkGenerator gen) = Gen $ \s ->
   let
     s1 = s
       { sdraw_stack = length (srecord s) : sdraw_stack s
       }
-    (s2, res) = gen s1
+    (s2, res) = runGen gen s1
     s3 = s2
       { sdraws = (head (sdraw_stack s2), length (srecord s2)) : sdraws s2
       , sdraw_stack = tail (sdraw_stack s2)
@@ -67,16 +87,16 @@ data Tree
   deriving (Show)
 
 genTree :: Generator Tree
-genTree =
-  MkGenerator $ \s -> case getbits 1 s of
-    (s, b)
-      | b == 0 -> (s, Leaf)
-      | otherwise ->
-        case draw genTree s of
-          (s, left) -> case draw genTree s of
-            (s, right) -> (s, Branch left right)
+genTree = mkGenerator $ do
+  b <- getbits 1
+  if b == 0
+    then pure Leaf
+    else do
+      left <- draw genTree
+      right <- draw genTree
+      pure (Branch left right)
 
-runGen :: Generator a -> IO a
-runGen g = do
+sample1 :: Generator a -> IO a
+sample1 g = do
   s <- mkSource []
-  return (snd (draw g s))
+  return (snd (runGen (draw g) s))
