@@ -1,6 +1,7 @@
 {-# language StandaloneDeriving #-}
 {-# language DerivingStrategies #-}
 {-# language DeriveFunctor #-}
+{-# language BlockArguments #-}
 module Hypo where
 
 import System.Random
@@ -41,7 +42,7 @@ instance Applicative Gen where
   (<*>) = ap
 
 instance Monad Gen where
-  ga >>= agb = Gen $ \s ->
+  ga >>= agb = Gen \s ->
     case runGen ga s of
       (s, a) -> runGen (agb a) s
 
@@ -49,7 +50,7 @@ instance Monad Gen where
 -- | return n bits
 getbits :: Int -> Gen B
 getbits n | n > 64 = error "more than 64 bits requested"
-getbits n = Gen $ \s ->
+getbits n = Gen \s ->
   let
     i = length (srecord s)
     (res, rest) =
@@ -69,7 +70,7 @@ mkGenerator :: Gen a -> Generator a
 mkGenerator = MkGenerator
 
 draw :: Generator a -> Gen a
-draw (MkGenerator gen) = Gen $ \s ->
+draw (MkGenerator gen) = Gen \s ->
   let
     s1 = s
       { sdraw_stack = length (srecord s) : sdraw_stack s
@@ -87,7 +88,7 @@ data Tree
   deriving (Show)
 
 genTree :: Generator Tree
-genTree = mkGenerator $ do
+genTree = mkGenerator do
   b <- getbits 1
   if b == 0
     then pure Leaf
