@@ -7,5 +7,6 @@ in
 pkgs.mkShell {
   buildInputs = [
     hs
+    pkgs.ghcid
   ];
 }
