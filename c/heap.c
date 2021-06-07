@@ -1,13 +1,18 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // define element type
 #define T int
 // compare two Ts
-#define heap_cmp(a, b) ((a) <= (b))
+#define heap_cmp(a, b) ((a) < (b))
 // define to allow growth
 #define HEAP_ALLOW_GROW
+
+// for heap_dump
+#define HEAP_VAL_FMT "%d"
+#define HEAP_VAL_ACCESS(x) (x)
 
 void heap_swap(T * a, T * b) {
   T tmp = *a;
@@ -42,6 +47,10 @@ Heap * heap_new(int capacity) {
   return h;
 }
 
+void heap_clear(Heap * h) {
+  h->len = 0;
+}
+
 void heap_free(Heap * h) {
   free(h->data);
   free(h);
@@ -58,23 +67,35 @@ bool heap_grow(Heap * h) {
   return true;
 }
 
-// void heap_dump(Heap * h) {
-//   printf("H: ");
-//   for (int i = 0; i < h->len; i++) {
-//     printf("%d, ", h->data[i]->val);
-//   }
-//   printf("\n");
-// }
+void heap_dump(Heap * h) {
+  printf("H: (%d/%d) ", h->len, h->cap);
+  for (int i = 0; i < h->len; i++) {
+    printf(HEAP_VAL_FMT ", ", HEAP_VAL_ACCESS(h->data[i]));
+  }
+  printf("\n");
+}
 
 bool heap_empty(Heap * h) {
   return h->len == 0;
 }
 
-void heap_fixup(Heap * h, int pos) {
-  while (pos != 0 && !heap_cmp(h->data[heap_parent_idx(pos)], h->data[pos])) {
-    heap_swap(h->data + heap_parent_idx(pos), h->data + pos);
-    pos = heap_parent_idx(pos);
+void heap_fixup(Heap * h, int hole, T val) {
+  while (hole != 0) {
+    int parent_idx = heap_parent_idx(hole);
+    T parent = h->data[parent_idx];
+
+    if (heap_cmp(parent, val)) {
+      // found the right place
+      break;
+    } else {
+      // push parent down
+      h->data[hole] = parent;
+      hole = parent_idx;
+    }
   }
+
+  // write new value to it's right place
+  h->data[hole] = val;
 }
 
 void heap_fixdown(Heap * h, int pos) {
@@ -111,11 +132,9 @@ bool heap_insert(Heap * h, T val) {
     return false;
 #endif
   }
-  int pos = h->len;
-  h->data[pos] = val;
+  int hole = h->len;
   h->len += 1;
-
-  heap_fixup(h, pos);
+  heap_fixup(h, hole, val);
   return true;
 }
 
@@ -162,11 +181,21 @@ bool heap_replace(Heap * h, T in, T * out) {
 #include <stdio.h>
 
 void test1() {
+  bool ok;
+  T o;
   Heap * h = heap_new(2);
   assert(h->len == 0);
 
-  bool ok;
-  T o;
+  for (int i = 0; i < 12; i++) {
+    assert(heap_insert(h, 12 - i));
+  }
+
+  for (int i = 0; i < 12; i++) {
+    assert(heap_extract(h, &o));
+    assert(o == i + 1);
+  }
+
+  heap_clear(h);
 
   ok = heap_peek(h, &o);
   assert(!ok);
