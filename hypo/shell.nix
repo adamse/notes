@@ -1,12 +1,17 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  hs = pkgs.haskellPackages.ghcWithPackages (p: [ p.random ]);
+  ghc = pkgs.haskellPackages.ghcWithPackages (p: [
+    p.random
+    p.vector
+    p.lens
+    p.mtl
+  ]);
 in
 
 pkgs.mkShell {
   buildInputs = [
-    hs
-    pkgs.ghcid
+    ghc
+    pkgs.haskellPackages.haskell-language-server
   ];
 }
